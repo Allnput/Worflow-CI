@@ -61,9 +61,16 @@ def main(data_path):
     with open("artifacts/classification_report.txt", "w") as f:
         f.write(classification_report(y_test, y_pred))
 
-    mlflow.log_artifacts("artifacts")
-
-    print("Training & logging finished successfully")
+    with mlflow.start_run(nested=True):
+            mlflow.log_metric("accuracy", acc)
+            mlflow.log_metric("precision", prec)
+            mlflow.log_metric("recall", rec)
+            mlflow.log_metric("f1_score", f1)
+    
+            mlflow.sklearn.log_model(model, artifact_path="model")
+            mlflow.log_artifacts("artifacts")
+    
+        print("Training & logging finished successfully")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
