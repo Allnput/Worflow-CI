@@ -16,8 +16,6 @@ from sklearn.metrics import (
     f1_score,
     confusion_matrix
 )
-
-os.environ.pop("MLFLOW_RUN_ID", None)
 def main(data_path):
     df = pd.read_csv(data_path)
 
@@ -66,7 +64,7 @@ def main(data_path):
     conf_matrix = confusion_matrix(y_test, best_y_pred)
     tn, fp, fn, tp = conf_matrix.ravel()
 
-
+    os.environ.pop("MLFLOW_RUN_ID", None)
     with mlflow.start_run():
         mlflow.log_params(best_params)
         mlflow.log_metric("accuracy", acc)
