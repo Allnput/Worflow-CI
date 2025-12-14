@@ -60,31 +60,18 @@ jobs:
           echo "Latest run_id: $RUN_ID"
           
       - name: Install MLflow and dependencies
-          run: |
+        run: |
             source ~/.bashrc  # Ensure shell configuration is reloaded
             conda activate Maintenance-Prediction  # Ensure environment is activated
             pip install mlflow  # Install mlflow if it wasn't installed in the environment
             pip install -r MLProject/requirements.txt  # Optional, if there is a requirements.txt
 
       - name: Run MLflow Project
-          run: |
+        run: |
             source ~/.bashrc  # Ensure shell configuration is reloaded
             conda Maintenance-Prediction  # Ensure environment is activated
             cd MLProject
             mlflow run . -P data_path=Predictive_Maintenance_Preproces.csv --env-manager=local
-      # ===============================
-      # Get latest MLflow run_id
-      # ===============================
-      - name: Get latest MLflow run_id
-        shell: bash -l {0}
-        run: |
-          echo "Checking mlruns directory"
-          ls -l MLProject/mlruns/0/
-
-          RUN_ID=$(ls -td MLProject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest run_id: $RUN_ID"
-
       # ===============================
       # Verify model artifact exists
       # ===============================
