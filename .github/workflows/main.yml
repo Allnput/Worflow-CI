@@ -53,7 +53,6 @@ jobs:
       # Initialize Conda
       # ===============================
       - name: Initialize Conda
-        shell: bash -l {0}
         run: |
           conda init bash
           source ~/.bashrc
@@ -62,7 +61,6 @@ jobs:
       # Install MLflow & dependencies
       # ===============================
       - name: Install MLflow and dependencies
-        shell: bash -l {0}
         run: |
           conda activate Maintenance-Prediction
           python -m pip install --upgrade pip
@@ -73,19 +71,16 @@ jobs:
       # Run MLflow Project
       # ===============================
       - name: Run MLflow Project
-        shell: bash -l {0}
         run: |
+          source ~/.bashrc
           conda activate Maintenance-Prediction
           cd MLProject
-          mlflow run . \
-            -P data_path=Predictive_Maintenance_Preproces.csv \
-            --env-manager=local
+          mlflow run . -P data_path=Predictive_Maintenance_Preproces.csv --env-manager=local
 
       # ===============================
       # Get latest MLflow run_id
       # ===============================
       - name: Get latest MLflow run_id
-        shell: bash -l {0}
         run: |
           echo "Checking mlruns directory"
           ls -l MLProject/mlruns/0/
