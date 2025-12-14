@@ -1,6 +1,6 @@
 # -- coding: utf-8 --
 import os
-import joblib
+import argparse
 import pandas as pd
 import numpy as np
 import mlflow
@@ -17,49 +17,57 @@ from sklearn.metrics import (
     classification_report
 )
 
-df = pd.read_csv("Predictive_Maintenance_Preproces.csv")
+def main(data_path):
+    df = pd.read_csv(data_path)
 
-X = df.drop(columns=["Target", "Failure Type"])
-y = df["Target"]
+    X = df.drop(columns=["Target", "Failure Type"])
+    y = df["Target"]
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y
-)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y
+    )
 
-model = LogisticRegression(
-    C=1.0,
-    solver="lbfgs",
-    max_iter=1000,
-    class_weight="balanced",
-    random_state=42
-)
+    model = LogisticRegression(
+        C=1.0,
+        solver="lbfgs",
+        max_iter=1000,
+        class_weight="balanced",
+        random_state=42
+    )
 
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-acc = accuracy_score(y_test, y_pred)
-prec = precision_score(y_test, y_pred)
-rec = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred)
+    rec = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
 
-mlflow.log_metric("accuracy", acc)
-mlflow.log_metric("precision", prec)
-mlflow.log_metric("recall", rec)
-mlflow.log_metric("f1_score", f1)
+    mlflow.log_metric("accuracy", acc)
+    mlflow.log_metric("precision", prec)
+    mlflow.log_metric("recall", rec)
+    mlflow.log_metric("f1_score", f1)
 
-mlflow.sklearn.log_model(model, artifact_path="model")
+    mlflow.sklearn.log_model(model, artifact_path="model")
 
-os.makedirs("artifacts", exist_ok=True)
+    os.makedirs("artifacts", exist_ok=True)
 
-cm = confusion_matrix(y_test, y_pred)
-np.savetxt("artifacts/confusion_matrix.txt", cm, fmt="%d")
+    cm = confusion_matrix(y_test, y_pred)
+    np.savetxt("artifacts/confusion_matrix.txt", cm, fmt="%d")
 
-with open("artifacts/classification_report.txt", "w") as f:
-    f.write(classification_report(y_test, y_pred))
+    with open("artifacts/classification_report.txt", "w") as f:
+        f.write(classification_report(y_test, y_pred))
 
-mlflow.log_artifacts("artifacts")
+    mlflow.log_artifacts("artifacts")
 
-print("Training & logging finished successfully")
+    print("Training & logging finished successfully")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_path", type=str, required=True)
+    args = parser.parse_args()
+
+    main(args.data_path)
