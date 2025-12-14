@@ -50,7 +50,8 @@ jobs:
           
       - name: Install MLflow and dependencies
         run: |
-            conda activate Maintenance-Prediction  # Ensure environment is activated
+            source ~/.bashrc
+            conda activate Maintenance-Prediction
             pip install mlflow  # Install mlflow if it wasn't installed in the environment
             pip install -r MLProject/requirements.txt  # Optional, if there is a requirements.txt
 
