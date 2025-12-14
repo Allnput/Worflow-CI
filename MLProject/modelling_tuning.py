@@ -3,6 +3,8 @@ import os
 import joblib
 import pandas as pd
 import numpy as np
+import mlflow
+import mlflow.sklearn
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -27,36 +29,49 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y
 )
 
-model = LogisticRegression(
-    C=1.0,
-    solver="lbfgs",
-    max_iter=1000,
-    class_weight="balanced",
-    random_state=42
-)
+mlflow.set_experiment("Maintenance-Prediction")
 
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+with mlflow.start_run():
 
-acc = accuracy_score(y_test, y_pred)
-prec = precision_score(y_test, y_pred)
-rec = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+    model = LogisticRegression(
+        C=1.0,
+        solver="lbfgs",
+        max_iter=1000,
+        class_weight="balanced",
+        random_state=42
+    )
 
-print("=== TRAINING RESULT ===")
-print(f"Accuracy  : {acc:.4f}")
-print(f"Precision : {prec:.4f}")
-print(f"Recall    : {rec:.4f}")
-print(f"F1-score  : {f1:.4f}")
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-os.makedirs("artifacts", exist_ok=True)
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred)
+    rec = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
 
-joblib.dump(model, "artifacts/model.pkl")
+    mlflow.log_param("model_type", "LogisticRegression")
+    mlflow.log_param("solver", "lbfgs")
+    mlflow.log_param("C", 1.0)
+    mlflow.log_param("class_weight", "balanced")
 
-cm = confusion_matrix(y_test, y_pred)
-np.savetxt("artifacts/confusion_matrix.txt", cm, fmt="%d")
+    mlflow.log_metric("accuracy", acc)
+    mlflow.log_metric("precision", prec)
+    mlflow.log_metric("recall", rec)
+    mlflow.log_metric("f1_score", f1)
 
-with open("artifacts/classification_report.txt", "w") as f:
-    f.write(classification_report(y_test, y_pred))
+    os.makedirs("artifacts", exist_ok=True)
 
-print("Artifacts saved successfully.")
+    joblib.dump(model, "artifacts/model.pkl")
+    mlflow.log_artifact("artifacts/model.pkl")
+
+    cm = confusion_matrix(y_test, y_pred)
+    np.savetxt("artifacts/confusion_matrix.txt", cm, fmt="%d")
+    mlflow.log_artifact("artifacts/confusion_matrix.txt")
+
+    with open("artifacts/classification_report.txt", "w") as f:
+        f.write(classification_report(y_test, y_pred))
+    mlflow.log_artifact("artifacts/classification_report.txt")
+
+    mlflow.sklearn.log_model(model, "model")
+
+print("Training & MLflow logging completed.")
