@@ -46,6 +46,14 @@ def main(data_path):
     rec = recall_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred)
 
+    # ✅ LANGSUNG LOG (run sudah dibuat oleh MLflow Project)
+    mlflow.log_metric("accuracy", acc)
+    mlflow.log_metric("precision", prec)
+    mlflow.log_metric("recall", rec)
+    mlflow.log_metric("f1_score", f1)
+
+    mlflow.sklearn.log_model(model, artifact_path="model")
+
     os.makedirs("artifacts", exist_ok=True)
 
     cm = confusion_matrix(y_test, y_pred)
@@ -53,15 +61,8 @@ def main(data_path):
 
     with open("artifacts/classification_report.txt", "w") as f:
         f.write(classification_report(y_test, y_pred))
-        
-    with mlflow.start_run():
-        mlflow.log_metric("accuracy", acc)
-        mlflow.log_metric("precision", prec)
-        mlflow.log_metric("recall", rec)
-        mlflow.log_metric("f1_score", f1)
 
-        mlflow.sklearn.log_model(model, artifact_path="model")
-        mlflow.log_artifacts("artifacts")
+    mlflow.log_artifacts("artifacts")
 
     print("Training & logging finished successfully")
 
