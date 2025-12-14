@@ -66,12 +66,12 @@ jobs:
 
       # Build Docker Model
       - name: Build Docker Model
-        shell: bash -l {0}
         run: |
+          source ~/.bashrc
           conda activate Maintenance-Prediction
-          mlflow models build-docker \
-          --model-uri "runs:/$RUN_ID/model" \
-          --name "prediction-maintenance"
+          mlflow models build-docker --model-uri "file://$GITHUB_WORKSPACE/MLProject/mlruns/0/$RUN_ID/artifacts/model" --name prediction-maintenance
+
+      # ✅ Login ke Docker Hub
 
           
       - name: Log in to Docker Hub
