@@ -70,7 +70,7 @@ jobs:
           source ~/.bashrc
           conda activate Maintenance-Prediction
           mlflow models build-docker \
-            --model-uri "runs:/$RUN_ID/model" \
+            --model-uri "runs:/61202f879dc64cc8bbee3f48e703c8fc/model" \
             --name prediction-maintenance
 
       # ✅ Login ke Docker Hub
