@@ -43,7 +43,38 @@ jobs:
           
        - name: Install MLflow and dependencies
           run: |
-          source ~/.bashrc  # Ensure shell configuration is reloaded
-          conda activate heart-attack-predictor  # Ensure environment is activated
-          pip install mlflow  # Install mlflow if it wasn't installed in the environment
-          pip install -r MLProject/requirements.txt  # Optional, if there is a requirements.txt    
+          source ~/.bashrc
+          python -m pip install --upgrade pip
+          conda activate Maintenance-Prediction
+          pip install mlflow
+          pip install -r MLProject/requirements.txt
+
+        - name: Run mlflow project
+            run: |
+              mlflow run MLproject --env-manager=local
+
+        - name: Get latest MLflow run_id
+        run: |
+          RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Latest run_id: $RUN_ID"
+
+
+
+         # Build Docker Model
+        - name: Build Docker Model
+          run: |
+            mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "prediction-maintenance"
+          
+        - name: Log in to Docker Hub
+                uses: docker/login-action@v2
+                with:
+                  username: ${{ secrets.DOCKER_HUB_USERNAME }}
+                  password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+        - name: Tag Docker Image
+                run: |
+                  docker tag prediction-maintenance ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
+        - name: Push Docker Image
+                run: |
+                  docker push ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest          
