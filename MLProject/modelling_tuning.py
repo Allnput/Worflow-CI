@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import os
 import mlflow
-mlflow.set_tracking_uri(f"file://{os.path.abspath('mlruns')}")
 
 import mlflow.sklearn
 
