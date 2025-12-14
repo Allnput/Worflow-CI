@@ -6,8 +6,8 @@ import pandas as pd
 
 import mlflow
 import mlflow.sklearn
-mlflow.set_tracking_uri("file:./mlruns")
-os.makedirs("mlruns", exist_ok=True)
+# mlflow.set_tracking_uri("file:./mlruns")
+# os.makedirs("mlruns", exist_ok=True)
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
