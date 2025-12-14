@@ -80,10 +80,6 @@ def main(data_path):
 
     mlflow.sklearn.log_model(
         best_model, name="model", input_example=X_test.iloc[:5])
-        
-    os.makedirs("artifacts", exist_ok=True)
-    model_path = "artifacts/best_logreg_model.pkl"
-    joblib.dump(best_model, model_path)
 
     print("Best Parameters:", best_params)
     print(f"Accuracy  : {acc}")
