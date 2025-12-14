@@ -55,6 +55,9 @@ jobs:
             pip install mlflow  # Install mlflow if it wasn't installed in the environment
             pip install -r MLProject/requirements.txt  # Optional, if there is a requirements.txt
 
+      - name: Set MLflow tracking URI
+        run: |
+            echo "MLFLOW_TRACKING_URI=file://$GITHUB_WORKSPACE/MLProject/mlruns" >> $GITHUB_ENV
 
       - name: Run MLflow Project
         run: |
