@@ -49,6 +49,12 @@ jobs:
           activate-environment: Maintenance-Prediction
           auto-activate-base: false
 
+      - name: Export MLflow Tracking URI
+        run: |
+          # Dapatkan jalur absolut yang benar dan masukkan ke variabel lingkungan
+          echo "MLFLOW_TRACKING_URI=file://$GITHUB_WORKSPACE/MLProject/mlruns" >> $GITHUB_ENV
+          echo "MLFLOW_ARTIFACT_LOCATION=$GITHUB_WORKSPACE/MLProject/mlruns" >> $GITHUB_ENV
+          
       # ===============================
       # Install MLflow & dependencies
       # ===============================
