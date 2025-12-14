@@ -48,7 +48,7 @@ jobs:
           python -m pip install --upgrade pip
           conda activate Maintenance-Prediction
           pip install mlflow
-          pip install -r MLProject/requirements.txt
+          pip install -r requirements.txt
 
       - name: Run mlflow project
         run: |
