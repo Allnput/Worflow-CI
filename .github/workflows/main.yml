@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  CSV_URL: "MLproject/Predictive_Maintenance_Preproces.csv"
+  CSV_URL: "MLProject/Predictive_Maintenance_Preproces.csv"
   TARGET_VAR: "Maintenance_Prediction"
 
 jobs:
@@ -25,8 +25,8 @@ jobs:
           python-version: "3.10.0"
           
        - name: Check Env
-        run: |
-          echo $CSV_URL 
+          run: |
+            echo $CSV_URL
           
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2
