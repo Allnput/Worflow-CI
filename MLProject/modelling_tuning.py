@@ -6,8 +6,6 @@ import pandas as pd
 
 import mlflow
 import mlflow.sklearn
-# mlflow.set_tracking_uri("file:./mlruns")
-# os.makedirs("mlruns", exist_ok=True)
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -19,7 +17,7 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-
+os.environ.pop("MLFLOW_RUN_ID", None)
 def main(data_path):
     df = pd.read_csv(data_path)
 
@@ -68,18 +66,24 @@ def main(data_path):
     conf_matrix = confusion_matrix(y_test, best_y_pred)
     tn, fp, fn, tp = conf_matrix.ravel()
 
-    mlflow.log_params(best_params)
-    mlflow.log_metric("accuracy", acc)
-    mlflow.log_metric("recall", recall)
-    mlflow.log_metric("precision", precision)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("true_negative", tn)
-    mlflow.log_metric("false_positive", fp)
-    mlflow.log_metric("false_negative", fn)
-    mlflow.log_metric("true_positive", tp)
 
-    mlflow.sklearn.log_model(
-        best_model, name="model", input_example=X_test.iloc[:5])
+    with mlflow.start_run():
+        mlflow.log_params(best_params)
+        mlflow.log_metric("accuracy", acc)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("f1_score", f1)
+        mlflow.log_metric("true_negative", tn)
+        mlflow.log_metric("false_positive", fp)
+        mlflow.log_metric("false_negative", fn)
+        mlflow.log_metric("true_positive", tp)
+
+        mlflow.sklearn.log_model(
+            best_model, name="model", input_example=X_test.iloc[:5])
+        
+    os.makedirs("artifacts", exist_ok=True)
+    model_path = "artifacts/best_logreg_model.pkl"
+    joblib.dump(best_model, model_path)
 
     print("Best Parameters:", best_params)
     print(f"Accuracy  : {acc}")
@@ -100,3 +104,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args.data_path)
+
+apa sudah benar seperti ini>?
