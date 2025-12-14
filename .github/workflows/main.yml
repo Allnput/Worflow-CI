@@ -60,15 +60,15 @@ jobs:
           echo "Latest run_id: $RUN_ID"
           
       - name: Install MLflow and dependencies
+        shell: bash -l {0}
         run: |
-            source ~/.bashrc  # Ensure shell configuration is reloaded
             conda activate Maintenance-Prediction  # Ensure environment is activated
             pip install mlflow  # Install mlflow if it wasn't installed in the environment
             pip install -r MLProject/requirements.txt  # Optional, if there is a requirements.txt
 
       - name: Run MLflow Project
+        shell: bash -l {0}
         run: |
-            source ~/.bashrc  # Ensure shell configuration is reloaded
             conda activate Maintenance-Prediction  # Ensure environment is activated
             cd MLProject
             mlflow run . -P data_path=Predictive_Maintenance_Preproces.csv --env-manager=local
