@@ -25,9 +25,9 @@ jobs:
         with:
           python-version: "3.10.0"
           
-       - name: Check Env
-          run: |
-            echo $CSV_URL
+      - name: Check Env
+        run: |
+          echo $CSV_URL
           
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2
@@ -40,42 +40,45 @@ jobs:
         run: |
           echo "Initializing Conda for bash"
           conda init bash
-          source ~/.bashrc  # Apply the changes made by 'conda init'
+          source ~/.bashrc
           
-       - name: Install MLflow and dependencies
-          run: |
+      - name: Install MLflow and dependencies
+        run: |
           source ~/.bashrc
           python -m pip install --upgrade pip
           conda activate Maintenance-Prediction
           pip install mlflow
           pip install -r MLProject/requirements.txt
 
-        - name: Run mlflow project
-            run: |
-              mlflow run MLproject --env-manager=local
+      - name: Run mlflow project
+        run: |
+          mlflow run MLProject --env-manager=local
 
-        - name: Get latest MLflow run_id
+      - name: Get latest MLflow run_id
         run: |
           RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
 
-
-
-         # Build Docker Model
-        - name: Build Docker Model
-          run: |
-            mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "prediction-maintenance"
+      # Build Docker Model
+      - name: Build Docker Model
+        run: |
+          mlflow models build-docker \
+          --model-uri "runs:/$RUN_ID/model" \
+          --name "prediction-maintenance"
           
-        - name: Log in to Docker Hub
-                uses: docker/login-action@v2
-                with:
-                  username: ${{ secrets.DOCKER_HUB_USERNAME }}
-                  password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-        - name: Tag Docker Image
-                run: |
-                  docker tag prediction-maintenance ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
-        - name: Push Docker Image
-                run: |
-                  docker push ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest          
+      - name: Tag Docker Image
+        run: |
+          docker tag prediction-maintenance \
+          ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
+
+      - name: Push Docker Image
+        run: |
+          docker push \
+          ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
