@@ -69,12 +69,9 @@ jobs:
       - name: Run MLflow Project
         shell: bash -l {0}
         run: |
-            conda activate Maintenance-Prediction  # Ensure environment is activated
             cd MLProject
             mlflow run . -P data_path=Predictive_Maintenance_Preproces.csv --env-manager=local
-      # ===============================
-      # Verify model artifact exists
-      # ===============================
+
       - name: Verify model artifact
         shell: bash -l {0}
         run: |
