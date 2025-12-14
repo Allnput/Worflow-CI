@@ -70,7 +70,7 @@ def main(data_path):
             mlflow.sklearn.log_model(model, artifact_path="model")
             mlflow.log_artifacts("artifacts")
     
-        print("Training & logging finished successfully")
+    print("Training & logging finished successfully")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
