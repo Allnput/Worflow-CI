@@ -50,14 +50,6 @@ jobs:
           auto-activate-base: false
 
       # ===============================
-      # Initialize Conda
-      # ===============================
-      - name: Initialize Conda
-        run: |
-          conda init bash
-          source ~/.bashrc
-
-      # ===============================
       # Install MLflow & dependencies
       # ===============================
       - name: Install MLflow and dependencies
@@ -80,6 +72,7 @@ jobs:
       # Get latest MLflow run_id
       # ===============================
       - name: Get latest MLflow run_id
+        shell: bash -l {0}
         run: |
           echo "Checking mlruns directory"
           ls -l MLProject/mlruns/0/
