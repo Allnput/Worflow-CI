@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+services: 
+  langflow: 
+    image: langflowai/langflow 
+    user: root
+
 env:
   CSV_URL: "MLProject/Predictive_Maintenance_Preproces.csv"
   TARGET_VAR: "Maintenance_Prediction"
