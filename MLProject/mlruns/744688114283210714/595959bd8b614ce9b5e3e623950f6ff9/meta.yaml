@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/BOOTCAMP/DICODING/SISTEM MACHINE LEARNING/MEMBANGUN MODEL
+  MACHINE LEARNING/Kriteria 2/mlruns/744688114283210714/595959bd8b614ce9b5e3e623950f6ff9/artifacts
+end_time: 1765670269269
+entry_point_name: ''
+experiment_id: '744688114283210714'
+lifecycle_stage: active
+run_id: 595959bd8b614ce9b5e3e623950f6ff9
+run_name: dashing-lark-140
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765670269200
+status: 3
+tags: []
+user_id: lenovo

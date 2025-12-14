@@ -1,0 +1,11 @@
+artifact_location: file:///C:/BOOTCAMP/DICODING/SISTEM MACHINE LEARNING/MEMBANGUN
+  MODEL MACHINE LEARNING/Kriteria 2/mlruns/612694777147471472/models/m-6eb26994e9c8418995d62720bbf489b8/artifacts
+creation_timestamp: 1765668606607
+experiment_id: '612694777147471472'
+last_updated_timestamp: 1765668612100
+model_id: m-6eb26994e9c8418995d62720bbf489b8
+model_type: null
+name: model
+source_run_id: 5c8948f21a5b441c8946cca580c1e728
+status: 2
+status_message: null

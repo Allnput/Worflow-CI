@@ -1,0 +1,16 @@
+creation_timestamp: 1765671860283
+current_stage: None
+deployment_job_state: null
+description: ''
+last_updated_timestamp: 1765671860283
+model_id: m-6eb26994e9c8418995d62720bbf489b8
+name: LogisticRegression_Predict_Maintenance_BASIC
+run_id: 5c8948f21a5b441c8946cca580c1e728
+run_link: ''
+source: models:/m-6eb26994e9c8418995d62720bbf489b8
+status: READY
+status_message: null
+storage_location: file:///C:/BOOTCAMP/DICODING/SISTEM MACHINE LEARNING/MEMBANGUN MODEL
+  MACHINE LEARNING/Kriteria 2/mlruns/612694777147471472/models/m-6eb26994e9c8418995d62720bbf489b8/artifacts
+user_id: null
+version: 1
