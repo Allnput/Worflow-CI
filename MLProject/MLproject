@@ -1,1 +1,9 @@
+name: Maintenance-Prediction
 
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      data_path: {type: str, default: "Predictive_Maintenance_Preproces.csv"}
+    command: "modelling_tuning.py --data_path {data_path}"
