@@ -6,6 +6,9 @@ import numpy as np
 import mlflow
 import mlflow.sklearn
 
+mlflow.set_tracking_uri("file:/home/runner/work/Worflow-CI/Worflow-CI/mlruns")
+mlflow.set_experiment("prediction-maintenance")
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
