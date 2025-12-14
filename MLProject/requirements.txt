@@ -81,4 +81,6 @@ waitress==3.0.2
 Werkzeug==3.1.4
 yellowbrick==1.5
 zipp==3.23.0
+mlflow>=2.9.0
+
 
