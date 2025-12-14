@@ -69,7 +69,7 @@ jobs:
       - name: Run MLflow Project
         run: |
             source ~/.bashrc  # Ensure shell configuration is reloaded
-            conda Maintenance-Prediction  # Ensure environment is activated
+            conda activate Maintenance-Prediction  # Ensure environment is activated
             cd MLProject
             mlflow run . -P data_path=Predictive_Maintenance_Preproces.csv --env-manager=local
       # ===============================
