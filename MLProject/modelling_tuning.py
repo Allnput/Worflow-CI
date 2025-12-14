@@ -69,19 +69,18 @@ def main(data_path):
     conf_matrix = confusion_matrix(y_test, best_y_pred)
     tn, fp, fn, tp = conf_matrix.ravel()
 
-    with mlflow.start_run():
-        mlflow.log_params(best_params)
-        mlflow.log_metric("accuracy", acc)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("f1_score", f1)
-        mlflow.log_metric("true_negative", tn)
-        mlflow.log_metric("false_positive", fp)
-        mlflow.log_metric("false_negative", fn)
-        mlflow.log_metric("true_positive", tp)
+    mlflow.log_params(best_params)
+    mlflow.log_metric("accuracy", acc)
+    mlflow.log_metric("recall", recall)
+    mlflow.log_metric("precision", precision)
+    mlflow.log_metric("f1_score", f1)
+    mlflow.log_metric("true_negative", tn)
+    mlflow.log_metric("false_positive", fp)
+    mlflow.log_metric("false_negative", fn)
+    mlflow.log_metric("true_positive", tp)
 
-        mlflow.sklearn.log_model(
-            best_model, name="model", input_example=X_test.iloc[:5])
+    mlflow.sklearn.log_model(
+        best_model, name="model", input_example=X_test.iloc[:5])
         
     os.makedirs("artifacts", exist_ok=True)
     model_path = "artifacts/best_logreg_model.pkl"
