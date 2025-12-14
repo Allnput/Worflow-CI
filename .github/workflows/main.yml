@@ -17,18 +17,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ===============================
+      # Checkout repository
+      # ===============================
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # ===============================
+      # Setup Python
+      # ===============================
       - name: Set up Python 3.12.7
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.7"
-          
+
+      # ===============================
+      # Check environment variables
+      # ===============================
       - name: Check Env
         run: |
-          echo $CSV_URL
-          
+          echo "CSV_URL=$CSV_URL"
+          echo "TARGET_VAR=$TARGET_VAR"
+
+      # ===============================
+      # Setup Conda
+      # ===============================
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -36,49 +49,95 @@ jobs:
           activate-environment: Maintenance-Prediction
           auto-activate-base: false
 
+      # ===============================
+      # Initialize Conda
+      # ===============================
       - name: Initialize Conda
+        shell: bash -l {0}
         run: |
-          echo "Initializing Conda for bash"
           conda init bash
           source ~/.bashrc
-          
+
+      # ===============================
+      # Install MLflow & dependencies
+      # ===============================
       - name: Install MLflow and dependencies
+        shell: bash -l {0}
         run: |
-          source ~/.bashrc
-          python -m pip install --upgrade pip
           conda activate Maintenance-Prediction
+          python -m pip install --upgrade pip
           pip install mlflow
           pip install -r MLProject/requirements.txt
 
-      - name: Run mlflow project
+      # ===============================
+      # Run MLflow Project
+      # ===============================
+      - name: Run MLflow Project
+        shell: bash -l {0}
         run: |
-          mlflow run MLProject --env-manager=local
+          conda activate Maintenance-Prediction
+          cd MLProject
+          mlflow run . \
+            -P data_path=Predictive_Maintenance_Preproces.csv \
+            --env-manager=local
 
+      # ===============================
+      # Get latest MLflow run_id
+      # ===============================
       - name: Get latest MLflow run_id
+        shell: bash -l {0}
         run: |
-          RUN_ID=$(ls -td mlruns/0/*/ | head -n 1 | cut -d'/' -f3)
+          echo "Checking mlruns directory"
+          ls -l MLProject/mlruns/0/
+
+          RUN_ID=$(ls -td MLProject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
 
-      # Build Docker Model
-      - name: Build Docker Model
+      # ===============================
+      # Verify model artifact exists
+      # ===============================
+      - name: Verify model artifact
+        shell: bash -l {0}
         run: |
+          if [ ! -d "MLProject/mlruns/0/$RUN_ID/artifacts/model" ]; then
+            echo "❌ Model artifact not found!"
+            exit 1
+          fi
+          echo "✅ Model artifact found"
+
+      # ===============================
+      # Build Docker Image from MLflow Model
+      # ===============================
+      - name: Build Docker Image
+        shell: bash -l {0}
+        run: |
+          conda activate Maintenance-Prediction
           mlflow models build-docker \
-          --model-uri "runs:/$RUN_ID/model" \
-          --name "prediction-maintenance"
-          
+            --model-uri "file://$GITHUB_WORKSPACE/MLProject/mlruns/0/$RUN_ID/artifacts/model" \
+            --name maintenance-model
+
+      # ===============================
+      # Login Docker Hub
+      # ===============================
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      # ===============================
+      # Tag Docker Image
+      # ===============================
       - name: Tag Docker Image
         run: |
-          docker tag prediction-maintenance \
-          ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
+          docker tag maintenance-model \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest
 
+      # ===============================
+      # Push Docker Image
+      # ===============================
       - name: Push Docker Image
         run: |
           docker push \
-          ${{ secrets.DOCKER_HUB_USERNAME }}/prediction-maintenance:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:latest

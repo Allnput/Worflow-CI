@@ -1,62 +1,108 @@
-# -- coding: utf-8 --
 import os
+import argparse
 import joblib
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+import mlflow
+import mlflow.sklearn
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
     recall_score,
+    precision_score,
     f1_score,
-    confusion_matrix,
-    classification_report
+    confusion_matrix
 )
 
-df = pd.read_csv("Predictive_Maintenance_Preproces.csv")
 
-X = df.drop(columns=["Target", "Failure Type"])
-y = df["Target"]
+def main(data_path):
+    df = pd.read_csv(data_path)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y,
-    test_size=0.2,
-    random_state=42,
-    stratify=y
-)
+    X = df.drop(columns=["Target", "Failure Type"])
+    y = df["Target"]
 
-model = LogisticRegression(
-    C=1.0,
-    solver="lbfgs",
-    max_iter=1000,
-    class_weight="balanced",
-    random_state=42
-)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+    params_list = [
+        {"C": 0.01, "solver": "lbfgs"},
+        {"C": 0.1, "solver": "lbfgs"},
+        {"C": 1.0, "solver": "lbfgs"},
+    ]
 
-acc = accuracy_score(y_test, y_pred)
-prec = precision_score(y_test, y_pred)
-rec = recall_score(y_test, y_pred)
-f1 = f1_score(y_test, y_pred)
+    best_f1 = 0
+    best_model = None
+    best_params = None
+    best_y_pred = None
 
-print("=== TRAINING RESULT ===")
-print(f"Accuracy  : {acc:.4f}")
-print(f"Precision : {prec:.4f}")
-print(f"Recall    : {rec:.4f}")
-print(f"F1-score  : {f1:.4f}")
+    for params in params_list:
+        model = LogisticRegression(
+            max_iter=1000,
+            random_state=42,
+            class_weight="balanced",
+            **params
+        )
 
-os.makedirs("artifacts", exist_ok=True)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
 
-joblib.dump(model, "artifacts/model.pkl")
+        f1 = f1_score(y_test, y_pred)
 
-cm = confusion_matrix(y_test, y_pred)
-np.savetxt("artifacts/confusion_matrix.txt", cm, fmt="%d")
+        if f1 > best_f1:
+            best_f1 = f1
+            best_model = model
+            best_params = params
+            best_y_pred = y_pred
 
-with open("artifacts/classification_report.txt", "w") as f:
-    f.write(classification_report(y_test, y_pred))
+    acc = accuracy_score(y_test, best_y_pred)
+    recall = recall_score(y_test, best_y_pred)
+    precision = precision_score(y_test, best_y_pred)
+    f1 = f1_score(y_test, best_y_pred)
 
-print("Artifacts saved successfully.")
+    conf_matrix = confusion_matrix(y_test, best_y_pred)
+    tn, fp, fn, tp = conf_matrix.ravel()
+
+    with mlflow.start_run():
+        mlflow.log_params(best_params)
+        mlflow.log_metric("accuracy", acc)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("f1_score", f1)
+        mlflow.log_metric("true_negative", tn)
+        mlflow.log_metric("false_positive", fp)
+        mlflow.log_metric("false_negative", fn)
+        mlflow.log_metric("true_positive", tp)
+
+        mlflow.sklearn.log_model(
+            best_model,
+            "model",
+            input_example=X_test.iloc[:5]
+        )
+        
+    os.makedirs("artifacts", exist_ok=True)
+    model_path = "artifacts/best_logreg_model.pkl"
+    joblib.dump(best_model, model_path)
+
+    print("Best Parameters:", best_params)
+    print(f"Accuracy  : {acc}")
+    print(f"Recall    : {recall}")
+    print(f"Precision : {precision}")
+    print(f"F1-score  : {f1}")
+    print("Confusion Matrix:\n", conf_matrix)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        required=True,
+        help="Path ke file CSV dataset"
+    )
+    args = parser.parse_args()
+
+    main(args.data_path)
