@@ -6,6 +6,8 @@ import pandas as pd
 
 import mlflow
 import mlflow.sklearn
+mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_experiment("maintenance_prediction")
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -78,10 +80,7 @@ def main(data_path):
         mlflow.log_metric("true_positive", tp)
 
         mlflow.sklearn.log_model(
-            best_model,
-            "model",
-            input_example=X_test.iloc[:5]
-        )
+            best_model, name="model", input_example=X_test.iloc[:5])
         
     os.makedirs("artifacts", exist_ok=True)
     model_path = "artifacts/best_logreg_model.pkl"
